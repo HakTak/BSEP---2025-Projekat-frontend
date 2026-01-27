@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import SubjectPage from './pages/SubjectPage';
 import RegisterPage from './pages/RegisterPage';
 import ActivatePage from './pages/ActivatePage';
+import LoginPage from './pages/LoginPage';
 import './App.css'; // Globalni stilovi
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/subjects" element={<SubjectPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/activate" element={<ActivatePage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </div>
     </Router>
