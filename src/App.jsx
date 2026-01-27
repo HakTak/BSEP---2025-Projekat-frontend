@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import SubjectPage from './pages/SubjectPage';
+import RegisterPage from './pages/RegisterPage';
+import ActivatePage from './pages/ActivatePage';
 import './App.css'; // Globalni stilovi
 
 function App() {
@@ -15,6 +17,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/subjects" element={<SubjectPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/activate" element={<ActivatePage />} />
         </Routes>
       </div>
     </Router>
