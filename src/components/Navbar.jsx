@@ -10,6 +10,12 @@ const Navbar = () => {
                 <Link to="/subjects" style={{ color: '#ecf0f1', textDecoration: 'none' }}>
                     Subjekti
                 </Link>
+                <Link to="/register" style={{ color: '#ecf0f1', textDecoration: 'none' }}>
+                    Registracija
+                </Link>
+                <Link to="/forgot-password" style={{ color: '#ecf0f1', textDecoration: 'none' }}>
+                    Zaboravljena Lozinka
+                </Link>
                 {/* Kasnije ćeš ovde dodati Login, Certificates, itd. */}
             </div>
         </nav>
