@@ -5,7 +5,9 @@ import SubjectPage from './pages/SubjectPage';
 import RegisterPage from './pages/RegisterPage';
 import ActivatePage from './pages/ActivatePage';
 import LoginPage from './pages/LoginPage';
+import UserSessionsPage from './pages/UserSessionPage';
 import './App.css'; // Globalni stilovi
+import TestPage from './pages/TestPage';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/activate" element={<ActivatePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/my-sessions" element={<UserSessionsPage />} /> {/* Dodana ruta */}
+          <Route path='/tests' element={<TestPage />} />
         </Routes>
       </div>
     </Router>

@@ -1,19 +1,23 @@
 import { useState } from 'react';
-import api from '../services/api'; // Uvozimo našu konfigurisanu axios instancu
+import api from '../services/api'; // Ovo je sada onaj "pametni" api iz tačke 1
 
 const HomePage = () => {
     const [message, setMessage] = useState('');
 
     const testBackend = async () => {
         try {
-            // Pošto u services/api.js već imamo baseURL: '/api',
-            // ovde samo kucamo nastavak putanje '/hello'.
-            // Ovo se na kraju pretvara u: https://localhost:8443/api/hello
-            const response = await api.get('/hello');
+            // api.get automatski dodaje Authorization header
+            const response = await api.get('/hello'); // Pretpostavljam da imaš /hello endpoint
             setMessage(response.data);
         } catch (error) {
-            console.error("Greska:", error);
-            setMessage("Greska u komunikaciji (proveri konzolu - F12)");
+            console.error("Greška:", error);
+            if (error.response && error.response.status === 401) {
+                setMessage("Greška: Niste ulogovani (401).");
+            } else if (error.code === "ERR_NETWORK") {
+                setMessage("Greška: Backend nije dostupan. Proveri da li radi server.");
+            } else {
+                setMessage("Došlo je do greške: " + error.message);
+            }
         }
     };
 
@@ -22,7 +26,6 @@ const HomePage = () => {
             <h1>Dobrodošli u PKI Sistem</h1>
             <p>Siguran sistem za upravljanje digitalnim sertifikatima.</p>
 
-            {/* SEKCIJA ZA TESTIRANJE KONEKCIJE */}
             <div style={{
                 marginTop: '40px',
                 padding: '20px',
@@ -32,7 +35,7 @@ const HomePage = () => {
                 backgroundColor: '#f9f9f9'
             }}>
                 <h3>Status Sistema</h3>
-                <p>Klikni ispod da proveriš vezu sa HTTPS serverom:</p>
+                <p>Klikni ispod da proveriš vezu (zahteva login):</p>
 
                 <button
                     onClick={testBackend}
@@ -46,13 +49,13 @@ const HomePage = () => {
                         borderRadius: '4px'
                     }}
                 >
-                    Testiraj HTTPS Vezu
+                    Testiraj Zaštićeni Endpoint
                 </button>
 
                 <p style={{
                     marginTop: '15px',
                     fontWeight: 'bold',
-                    color: message.startsWith('Greska') ? 'red' : 'green'
+                    color: message.startsWith('Greška') ? 'red' : 'green'
                 }}>
                     {message && `Odgovor sa servera: ${message}`}
                 </p>

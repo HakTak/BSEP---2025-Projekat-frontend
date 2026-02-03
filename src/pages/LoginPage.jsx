@@ -46,7 +46,6 @@ const LoginPage = () => {
       localStorage.setItem("access_token", data.access_token);
 
       console.log("Access token:", data.access_token);
-      alert("Login successful!");
       navigate("/");
 
     } catch (err) {
@@ -77,10 +76,10 @@ const LoginPage = () => {
         />
 
         <div style={{ marginTop: "20px" }}>
-            <ReCAPTCHA
+          <ReCAPTCHA
             sitekey={RECAPTCHA_SITE_KEY}
             onChange={(value) => setRecaptchaValue(value)}
-            />
+          />
         </div>
 
         {error && <p style={styles.error}>{error}</p>}
