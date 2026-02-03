@@ -80,7 +80,7 @@ const UserSessionsPage = () => {
                                         color: '#000000'
                                     }}>
                                         <td style={tdStyle}>
-                                            <strong style={{ color: '#000' }}>{session.deviceName}</strong>
+                                            <strong style={{ color: '#000' }}>{session.userAgent}</strong>
                                         </td>
                                         <td style={tdStyle}>{session.ipAddress}</td>
                                         <td style={tdStyle}>{formatTime(session.createdAt)}</td>
