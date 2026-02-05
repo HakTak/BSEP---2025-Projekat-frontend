@@ -45,8 +45,17 @@ const LoginPage = () => {
 
       localStorage.setItem("access_token", data.access_token);
 
-      console.log("Access token:", data.access_token);
-      navigate("/");
+      const payload = JSON.parse(atob(data.access_token.split(".")[1]));
+
+      if (
+        payload.role === "CA_USER" &&
+        (payload.mustChangePassword === true || payload.mustChangePassword === "true")
+      ) {
+        navigate("/change-password");
+      } else {
+        navigate("/");
+      }
+
 
     } catch (err) {
       setError(err.message);
