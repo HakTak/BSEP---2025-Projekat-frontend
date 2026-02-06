@@ -8,6 +8,8 @@ import LoginPage from './pages/LoginPage';
 import UserSessionsPage from './pages/UserSessionPage';
 import './App.css'; // Globalni stilovi
 import TestPage from './pages/TestPage';
+import AdminRegisterCAUserPage from './pages/RegisterCAPage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/my-sessions" element={<UserSessionsPage />} /> {/* Dodana ruta */}
           <Route path='/tests' element={<TestPage />} />
+          <Route path='/register-ca' element={<AdminRegisterCAUserPage />} />
+          <Route path="/change-password" element={<ChangePasswordPage />} />
         </Routes>
       </div>
     </Router>
