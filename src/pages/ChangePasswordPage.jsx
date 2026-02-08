@@ -13,11 +13,7 @@ const ChangePasswordPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-<<<<<<< HEAD
         if (!mustChangePassword()) {
-=======
-        if (mustChangePassword()) {
->>>>>>> 6356efd2e7199785ad1d1d82fd0116404972603d
             // Ako ne mora da menja lozinku, vraćamo ga na početnu
             navigate("/");
         } else {
