@@ -10,6 +10,8 @@ import './App.css'; // Globalni stilovi
 import TestPage from './pages/TestPage';
 import AdminRegisterCAUserPage from './pages/RegisterCAPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import CertificateViewPage from './pages/CertificateViewPage';
+import CsrFormPAge from './pages/CsrFormPage';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route path='/tests' element={<TestPage />} />
           <Route path='/register-ca' element={<AdminRegisterCAUserPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
+          <Route path="/certificates" element={<CertificateViewPage />} />
+          <Route path="/csr-form" element={<CsrFormPAge />} />
         </Routes>
       </div>
     </Router>

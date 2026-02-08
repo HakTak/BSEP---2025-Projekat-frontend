@@ -34,6 +34,12 @@ const Navbar = () => {
                     <Link to="/subjects" style={styles.link}>
                         Subjekti
                     </Link>
+                    <Link to="/certificates" style={styles.link}>
+                        Sertifikati
+                    </Link>
+                    <Link to="/csr-form" style={styles.link}>
+                        CSR
+                    </Link>
                 </div>
 
                 <div style={styles.rightSection}>
