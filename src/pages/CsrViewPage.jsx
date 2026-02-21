@@ -62,9 +62,10 @@ const CsrPage = () => {
                             <div><strong>OU:</strong> {csr.organizationalUnit}</div>
                             <div><strong>Country:</strong> {csr.country}</div>
                             <div><strong>Email:</strong> {csr.email}</div>
-                            <div><strong>Issuer SN:</strong> {csr.issuerSerialNumber}</div>
-                            <div><strong>Issued:</strong> {csr.issuedAt?.split('T')[0]}</div>
-                            <div><strong>Expires:</strong> {csr.expiresAt?.split('T')[0]}</div>
+                            <div><strong>Issuer Certificate SN:</strong> {csr.issuerSerialNumber}</div>
+                            <div><strong>CSR Issued At:</strong> {csr.issuedAt?.split('T')[0]}</div>
+                            <div><strong>Certificate expiry:</strong> {csr.expiresAt?.split('T')[0]}</div>
+                            <div><strong>Public Key:</strong> {csr.publicKey}</div>
                         </div>
 
                         <div style={{ textAlign: 'right', marginTop: '6px' }}>
