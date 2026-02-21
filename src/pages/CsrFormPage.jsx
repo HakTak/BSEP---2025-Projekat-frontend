@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import api from '../services/api';
 
 // DTO SHAPE
 const CsrStructure = {
@@ -10,140 +11,6 @@ const CsrStructure = {
 
 
 
-// Mock intermediate certificates
-const mockIntermediates = [
-  {
-    serialNumber: "INT001",
-    commonName: "Intermediate CA 1",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca1@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-01-01T00:00:00",
-    validTo: "2034-01-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT002",
-    commonName: "Intermediate CA 2",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca2@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-02-01T00:00:00",
-    validTo: "2034-02-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: true
-  },
-  {
-    serialNumber: "INT004",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT005",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT006",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT007",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT008",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT009",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT0010",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  },
-  {
-    serialNumber: "INT011",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false
-  }
-];
-
 export default function CsrUploadPage() {
   const scrollContainerRef = useRef(null);
   const [formData, setFormData] = useState(CsrStructure);
@@ -153,9 +20,23 @@ export default function CsrUploadPage() {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
+  const loadCertificates = async () => {
+          try {
+              const response = await api.get(
+                  "/certificates/getAllCA"
+              );
+
+              setIntermediates(response.data);
+
+          } catch (error) {
+              console.error("Error loading certificates:", error);
+          }
+      };
+
   useEffect(() => {
     // Load mock intermediates
-    const validIntermediates = mockIntermediates.filter(ca => !ca.isRevoked);
+    loadCertificates();
+    const validIntermediates = intermediates.filter(ca => !ca.isRevoked);
     setIntermediates(validIntermediates);
 
     const container = scrollContainerRef.current;
