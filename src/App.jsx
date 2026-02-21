@@ -12,7 +12,11 @@ import AdminRegisterCAUserPage from './pages/RegisterCAPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import CertificateViewPage from './pages/CertificateViewPage';
 import CsrFormPAge from './pages/CsrFormPage';
+<<<<<<< HEAD
 import CertificateIssuePage from './pages/CertificateIssuePage';
+=======
+import CsrViewPage from './pages/CsrViewPage';
+>>>>>>> dev
 
 function App() {
   return (
@@ -34,7 +38,11 @@ function App() {
           <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route path="/certificates" element={<CertificateViewPage />} />
           <Route path="/csr-form" element={<CsrFormPAge />} />
+<<<<<<< HEAD
           <Route path="/issue-certificate" element={<CertificateIssuePage />} />
+=======
+          <Route path="/csr" element={<CsrViewPage />} />
+>>>>>>> dev
         </Routes>
       </div>
     </Router>

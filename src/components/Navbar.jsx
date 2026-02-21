@@ -41,7 +41,10 @@ const Navbar = () => {
                         Sertifikati
                     </Link>
                     <Link to="/csr-form" style={styles.link}>
-                        CSR
+                        CSR Form
+                    </Link>
+                    <Link to="/csr" style={styles.link}>
+                        CSRs
                     </Link>
                 </div>
 
@@ -61,10 +64,9 @@ const Navbar = () => {
     );
 };
 
-// Izdvojio sam stilove da kod bude čitliji
 const styles = {
     nav: {
-        padding: '15px',
+        padding: '10px 15px', // Slightly reduced vertical padding
         background: '#2c3e50',
         marginBottom: '20px',
         color: 'white'
@@ -73,34 +75,40 @@ const styles = {
         maxWidth: '1200px',
         margin: '0 auto',
         display: 'flex',
-        justifyContent: 'space-between', // Razdvaja levo i desno
+        justifyContent: 'space-between',
         alignItems: 'center'
     },
     leftSection: {
         display: 'flex',
-        gap: '20px',
+        // Reduced gap to 5px for minimal spacing between brand and links
+        gap: '5px', 
         alignItems: 'center'
     },
     rightSection: {
         display: 'flex',
-        gap: '15px'
+        // Reduced gap for the right side as well
+        gap: '5px' 
     },
     brand: {
         color: 'white',
         textDecoration: 'none',
         fontWeight: 'bold',
-        fontSize: '18px'
+        fontSize: '18px',
+        padding: '5px' // Tiny bit of clickable area
     },
     link: {
         color: '#ecf0f1',
         textDecoration: 'none',
-        fontSize: '16px'
+        fontSize: '16px',
+        // Adding a very small horizontal padding ensures they don't touch 
+        // characters, but stay as close as possible.
+        padding: '0 5px' 
     },
     logoutBtn: {
         backgroundColor: '#e74c3c',
         color: 'white',
         border: 'none',
-        padding: '8px 15px',
+        padding: '8px 12px',
         borderRadius: '4px',
         cursor: 'pointer',
         fontWeight: 'bold',

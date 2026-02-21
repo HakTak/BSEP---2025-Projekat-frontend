@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 
+const REVOCATION_REASONS = {
+    "0": "Unspecified",
+    "1": "Key Compromise",
+    "2": "CA Compromise",
+    "3": "Affiliation Changed",
+    "4": "Superseded",
+    "5": "Cessation Of Operation",
+    "6": "Certificate Hold",
+    "9": "Privilege Withdrawn",
+    "10": "AA Compromise"
+};
+
 const CertificatePage = () => {
     const [certificates, setCertificates] = useState([]);
 
@@ -14,147 +26,6 @@ const CertificatePage = () => {
     const [revokeReason, setRevokeReason] = useState("unspecified");
 
     useEffect(() => {
-        setCertificates([
-    {
-    serialNumber: "INT001",
-    commonName: "Intermediate CA 1",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca1@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-01-01T00:00:00",
-    validTo: "2034-01-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT002",
-    commonName: "Intermediate CA 2",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca2@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-02-01T00:00:00",
-    validTo: "2034-02-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: true,
-    revocationReason: "Unspecified"
-  },
-  {
-    serialNumber: "INT004",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT005",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT006",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT007",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT008",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT009",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT0010",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-  },
-  {
-    serialNumber: "INT011",
-    commonName: "Intermediate CA 3",
-    organization: "Example Corp",
-    organizationalUnit: "IT",
-    country: "RS",
-    email: "ca3@example.com",
-    issuerSerialNumber: "ROOT001",
-    validFrom: "2024-03-01T00:00:00",
-    validTo: "2034-03-01T00:00:00",
-    type: "INTERMEDIATE_CA",
-    isRevoked: false,
-    revocationReason: ""
-   }]);
     loadCertificates();
     }, []);
 
@@ -309,7 +180,10 @@ const CertificatePage = () => {
                                         fontSize: '10px'
                                     }}
                                 >
-                                    { cert.isRevoked ? `${status} (${cert.revocationReason})` : status }
+                                   {cert.isRevoked 
+                                        ? `${status} (${REVOCATION_REASONS[cert.revocationReason] || 'Unknown'})` 
+                                        : status
+                                    }
                                 </span>
                             </div>
                         </div>
@@ -378,15 +252,15 @@ const CertificatePage = () => {
                             value={revokeReason}
                             onChange={(e) => setRevokeReason(e.target.value)}
                         >
-                            <option value="Unspecified">Unspecified</option>
-                            <option value="Key Compromise">Key Compromise</option>
-                            <option value="CA ACompromise">CA Compromise</option>
-                            <option value="Affiliation Changed">Affiliation Changed</option>
-                            <option value="Superseded">Superseded</option>
-                            <option value="Cessation Of Operation">Cessation Of Operation</option>
-                            <option value="Certificate Hold">Certificate Hold</option>
-                            <option value="Privilege Withdrawn">Privilege Withdrawn</option>
-                            <option value="AA Compromise">AA Compromise</option>
+                            <option value="0">Unspecified</option>
+                            <option value="1">Key Compromise</option>
+                            <option value="2">CA Compromise</option>
+                            <option value="3">Affiliation Changed</option>
+                            <option value="4">Superseded</option>
+                            <option value="5">Cessation Of Operation</option>
+                            <option value="6">Certificate Hold</option>
+                            <option value="9">Privilege Withdrawn</option>
+                            <option value="10">AA Compromise</option>
                         </select>
 
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
