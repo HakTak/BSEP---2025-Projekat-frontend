@@ -34,6 +34,9 @@ const Navbar = () => {
                     <Link to="/subjects" style={styles.link}>
                         Subjekti
                     </Link>
+                    <Link to="/issue-certificate" style={styles.link}>
+                        Izdavanje Sertifikata
+                    </Link>
                     <Link to="/certificates" style={styles.link}>
                         Sertifikati
                     </Link>
