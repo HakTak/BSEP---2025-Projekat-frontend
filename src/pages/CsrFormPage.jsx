@@ -21,17 +21,17 @@ export default function CsrUploadPage() {
   const fileInputRef = useRef(null);
 
   const loadCertificates = async () => {
-          try {
-              const response = await api.get(
-                  "/certificates/getAllCA"
-              );
+    try {
+      const response = await api.get(
+        "/certificates/getAllCA"
+      );
 
-              setIntermediates(response.data);
+      setIntermediates(response.data);
 
-          } catch (error) {
-              console.error("Error loading certificates:", error);
-          }
-      };
+    } catch (error) {
+      console.error("Error loading certificates:", error);
+    }
+  };
 
   useEffect(() => {
     // Load mock intermediates
@@ -89,20 +89,20 @@ export default function CsrUploadPage() {
       alert("Select a signing CA");
       return;
     }
-    console.log( formData.issuerSerialNumber)
+    console.log(formData.issuerSerialNumber)
     const selectedCA = intermediates.find(ca => ca.serialNumber === selectedCaSerial);
 
     const userExpiry = new Date(formData.expiresAt);
     const caExpiry = new Date(selectedCA.validTo);
 
     if (userExpiry > caExpiry) {
-        alert(`Certificate expiration cannot be later than the signing CA's expiration: ${caExpiry.toISOString().split('T')[0]}`);
-        return;
+      alert(`Certificate expiration cannot be later than the signing CA's expiration: ${caExpiry.toISOString().split('T')[0]}`);
+      return;
     }
 
     if (userExpiry < new Date()) {
-        alert("Certificate expiration cannot be in the past");
-        return;
+      alert("Certificate expiration cannot be in the past");
+      return;
     }
 
     try {
@@ -114,24 +114,19 @@ export default function CsrUploadPage() {
         expiresAt: formData.expiresAt
       };
 
-    try {
-        const response = await axios.post(
-            "/certificates/submitCsr",
-            payload,
-            {
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }
+      try {
+        const response = await api.post(
+          "/certificates/submitCsr",
+          payload
         );
 
         console.log("CSR submit success:", response.data);
 
-    } catch (err) {
+      } catch (err) {
         console.error("Submit CSR error:", err);
-    }
+      }
 
-        // Reset form
+      // Reset form
       setFormData(CsrStructure);
       setFileName("");
       setSelectedCaSerial(null);
@@ -158,7 +153,7 @@ export default function CsrUploadPage() {
             {/* CSR FILE UPLOAD */}
             <div>
               <label className="block text-sm font-semibold mb-2">
-                Upload CSR 
+                Upload CSR
               </label>
               <input
                 ref={fileInputRef}
@@ -176,86 +171,86 @@ export default function CsrUploadPage() {
 
             {/* INTERMEDIATE CA CARD SCROLLER */}
             <div>
-  <label className="block text-sm font-semibold mb-2">
-    Select Signing Certificate
-  </label>
-  <div
-    ref={scrollContainerRef}
-    style={{
-      display: "flex",
-      overflowX: "auto",
-      gap: "12px",
-      paddingBottom: "8px",
-      paddingTop: "4px",
-      scrollbarWidth: "thin",
-    }}
-  >
-    {intermediates.map((ca) => {
-      const status = ca.isRevoked
-        ? "Revoked"
-        : new Date(ca.validTo) < new Date()
-        ? "Expired"
-        : "Valid";
+              <label className="block text-sm font-semibold mb-2">
+                Select Signing Certificate
+              </label>
+              <div
+                ref={scrollContainerRef}
+                style={{
+                  display: "flex",
+                  overflowX: "auto",
+                  gap: "12px",
+                  paddingBottom: "8px",
+                  paddingTop: "4px",
+                  scrollbarWidth: "thin",
+                }}
+              >
+                {intermediates.map((ca) => {
+                  const status = ca.isRevoked
+                    ? "Revoked"
+                    : new Date(ca.validTo) < new Date()
+                      ? "Expired"
+                      : "Valid";
 
-      return (
-        <div
-          key={ca.serialNumber}
-          onClick={() => setSelectedCaSerial(ca.serialNumber)}
-          style={{
-            minWidth: "180px",
-            maxWidth: "180px",
-            aspectRatio: "1 / 1.414",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            padding: "8px",
-            fontSize: "9px",
-            borderRadius: "6px",
-            color: "#111",
-            border:
-              selectedCaSerial === ca.serialNumber
-                ? "3px solid #1e7e34"
-                : "1px solid #ccc",
-            backgroundColor: "#fff",
-            cursor: "pointer",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-          }}
-        >
-          {/* HEADER */}
-          <div style={{ borderBottom: "1px solid #222", paddingBottom: "4px", textAlign: "center", fontSize: "10px", fontWeight: "bold" }}>
-            CERTIFICATE
-          </div>
+                  return (
+                    <div
+                      key={ca.serialNumber}
+                      onClick={() => setSelectedCaSerial(ca.serialNumber)}
+                      style={{
+                        minWidth: "180px",
+                        maxWidth: "180px",
+                        aspectRatio: "1 / 1.414",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        padding: "8px",
+                        fontSize: "9px",
+                        borderRadius: "6px",
+                        color: "#111",
+                        border:
+                          selectedCaSerial === ca.serialNumber
+                            ? "3px solid #1e7e34"
+                            : "1px solid #ccc",
+                        backgroundColor: "#fff",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                      }}
+                    >
+                      {/* HEADER */}
+                      <div style={{ borderBottom: "1px solid #222", paddingBottom: "4px", textAlign: "center", fontSize: "10px", fontWeight: "bold" }}>
+                        CERTIFICATE
+                      </div>
 
-          {/* BODY */}
-          <div style={{ marginTop: "4px", lineHeight: 1.2 }}>
-            <div><strong>SN:</strong> {ca.serialNumber}</div>
-            <div><strong>Org:</strong> {ca.organization}</div>
-            <div><strong>OU:</strong> {ca.organizationalUnit}</div>
-            <div><strong>Country:</strong> {ca.country}</div>
-            <div><strong>IssuerSN:</strong> {ca.issuerSerialNumber}</div>
-            <div><strong>ValidFrom:</strong> {ca.validFrom?.split("T")[0]}</div>
-            <div><strong>ValidTo:</strong> {ca.validTo?.split("T")[0]}</div>
-            <div><strong>Type:</strong> {ca.type}</div>
-          </div>
+                      {/* BODY */}
+                      <div style={{ marginTop: "4px", lineHeight: 1.2 }}>
+                        <div><strong>SN:</strong> {ca.serialNumber}</div>
+                        <div><strong>Org:</strong> {ca.organization}</div>
+                        <div><strong>OU:</strong> {ca.organizationalUnit}</div>
+                        <div><strong>Country:</strong> {ca.country}</div>
+                        <div><strong>IssuerSN:</strong> {ca.issuerSerialNumber}</div>
+                        <div><strong>ValidFrom:</strong> {ca.validFrom?.split("T")[0]}</div>
+                        <div><strong>ValidTo:</strong> {ca.validTo?.split("T")[0]}</div>
+                        <div><strong>Type:</strong> {ca.type}</div>
+                      </div>
 
-          {/* STATUS */}
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
-            <span
-              style={{
-                padding: "2px 6px",
-                borderRadius: "12px",
-                fontWeight: "bold",
-                fontSize: "8px",
-                color: "#fff",
-              }}
-            >
-            </span>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-</div>
+                      {/* STATUS */}
+                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
+                        <span
+                          style={{
+                            padding: "2px 6px",
+                            borderRadius: "12px",
+                            fontWeight: "bold",
+                            fontSize: "8px",
+                            color: "#fff",
+                          }}
+                        >
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* EXPIRATION DATE */}
             <div>

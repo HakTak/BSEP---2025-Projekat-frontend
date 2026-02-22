@@ -18,7 +18,7 @@ const CertificateIssuePage = () => {
         validTo: '',
         issuerSerialNumber: '',
         subjectUserId: '', // Ovo bi idealno bio dropdown korisnika
-        isCa: false,
+        ca: false,
         keyUsage: [] // Lista integera
     });
 
@@ -67,7 +67,7 @@ const CertificateIssuePage = () => {
         setIsRootIssue(checked);
         // Ako je root, issuer nije potreban, i obično je CA
         if (checked) {
-            setFormData(prev => ({ ...prev, issuerSerialNumber: '', isCa: true }));
+            setFormData(prev => ({ ...prev, issuerSerialNumber: '', cA: true }));
         }
     };
 
@@ -91,6 +91,7 @@ const CertificateIssuePage = () => {
         const endpoint = isRootIssue ? '/certificates/issue-root' : '/certificates/issue-intermediate';
 
         try {
+            console.log(requestData)
             const response = await api.post(endpoint, requestData);
             setMessage({
                 type: 'success',
@@ -245,8 +246,8 @@ const CertificateIssuePage = () => {
                     <label style={styles.checkboxLabel}>
                         <input
                             type="checkbox"
-                            name="isCa"
-                            checked={formData.isCa}
+                            name="ca"
+                            checked={formData.ca}
                             onChange={handleChange}
                         />
                         Ovaj sertifikat je CA (Certificate Authority)
