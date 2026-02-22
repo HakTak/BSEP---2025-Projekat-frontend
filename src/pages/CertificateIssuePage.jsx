@@ -7,26 +7,33 @@ const CertificateIssuePage = () => {
     const [formData, setFormData] = useState({
         commonName: '', organization: '', organizationalUnit: '',
         country: '', email: '', validFrom: '', validTo: '',
-        issuerSerialNumber: '', subjectUserId: '', ca: false, keyUsage: []
+        issuerSerialNumber: '', subjectUserId: '', ca: false, keyUsage: [], templateId: null
     });
     const [isRootIssue, setIsRootIssue] = useState(false);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
     const [issuers, setIssuers] = useState([]);
     const [selectedIssuerSerial, setSelectedIssuerSerial] = useState(null);
+    const [availableTemplates, setAvailableTemplates] = useState([]);
+    const [selectedTemplateId, setSelectedTemplateId] = useState('');
     const scrollRef = useRef(null);
 
     const keyUsageOptions = [
-        { id: 0, label: "Digital Signature" }, { id: 1, label: "Non Repudiation" },
-        { id: 2, label: "Key Encipherment" }, { id: 3, label: "Data Encipherment" },
-        { id: 4, label: "Key Agreement" }, { id: 5, label: "Key Cert Sign" },
-        { id: 6, label: "CRL Sign" }, { id: 7, label: "Encipher Only" }, { id: 8, label: "Decipher Only" }
+        { id: 0, label: "Digital Signature", value: 128 },
+        { id: 1, label: "Non Repudiation", value: 64 },
+        { id: 2, label: "Key Encipherment", value: 32 },
+        { id: 3, label: "Data Encipherment", value: 16 },
+        { id: 4, label: "Key Agreement", value: 8 },
+        { id: 5, label: "Key Cert Sign", value: 4 },
+        { id: 6, label: "CRL Sign", value: 2 },
+        { id: 7, label: "Encipher Only", value: 1 },
+        { id: 8, label: "Decipher Only", value: 32768 }
     ];
 
+    // Učitaj issuere
     useEffect(() => {
         const loadIssuers = async () => {
             try {
-                // Korisnikovi sertifikati - isti endpoint kao /certificates
                 const response = await api.get('/certificates/getAll');
                 const valid = response.data.filter(c =>
                     (c.type === 'INTERMEDIATE' || c.type === 'ROOT') && !c.revoked && new Date(c.validTo) > new Date()
@@ -39,6 +46,20 @@ const CertificateIssuePage = () => {
         if (!isRootIssue) loadIssuers();
     }, [isRootIssue]);
 
+    // Učitaj šablone kada se selektuje issuer
+    useEffect(() => {
+        const serial = formData.issuerSerialNumber.trim();
+        if (!serial || isRootIssue) {
+            setAvailableTemplates([]);
+            setSelectedTemplateId('');
+            return;
+        }
+        api.get(`/templates/issuer/${serial}`)
+            .then(res => setAvailableTemplates(res.data))
+            .catch(() => setAvailableTemplates([]));
+    }, [formData.issuerSerialNumber, isRootIssue]);
+
+    // Scroll wheel na card listicama
     useEffect(() => {
         const el = scrollRef.current;
         if (!el) return;
@@ -52,24 +73,54 @@ const CertificateIssuePage = () => {
         setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
-    const handleKeyUsageChange = (id) => {
+    const handleSelectIssuer = (serial) => {
+        setSelectedIssuerSerial(serial);
+        setFormData(prev => ({ ...prev, issuerSerialNumber: serial }));
+        // Reset template kad se promeni issuer
+        setSelectedTemplateId('');
+        setFormData(prev => ({ ...prev, issuerSerialNumber: serial, templateId: null, keyUsage: [] }));
+    };
+
+    const handleKeyUsageChange = (optionId) => {
+        if (selectedTemplateId) {
+            const template = availableTemplates.find(t => t.id === parseInt(selectedTemplateId));
+            if (template) {
+                const option = keyUsageOptions.find(o => o.id === optionId);
+                if ((template.keyUsage & option.value) === 0) {
+                    alert(`"${option.label}" nije dozvoljen ovim šablonom!`);
+                    return;
+                }
+            }
+        }
         setFormData(prev => ({
             ...prev,
-            keyUsage: prev.keyUsage.includes(id)
-                ? prev.keyUsage.filter(x => x !== id)
-                : [...prev.keyUsage, id]
+            keyUsage: prev.keyUsage.includes(optionId)
+                ? prev.keyUsage.filter(id => id !== optionId)
+                : [...prev.keyUsage, optionId]
         }));
+    };
+
+    const handleTemplateSelect = (e) => {
+        const id = e.target.value;
+        setSelectedTemplateId(id);
+        if (!id) {
+            setFormData(prev => ({ ...prev, templateId: null, keyUsage: [] }));
+            return;
+        }
+        const template = availableTemplates.find(t => t.id === parseInt(id));
+        if (!template) return;
+        const checkedIds = keyUsageOptions
+            .filter(opt => (template.keyUsage & opt.value) !== 0)
+            .map(opt => opt.id);
+        setFormData(prev => ({ ...prev, templateId: template.id, keyUsage: checkedIds }));
     };
 
     const handleRootToggle = (e) => {
         setIsRootIssue(e.target.checked);
         setSelectedIssuerSerial(null);
-        if (e.target.checked) setFormData(prev => ({ ...prev, issuerSerialNumber: '', ca: true }));
-    };
-
-    const handleSelectIssuer = (serial) => {
-        setSelectedIssuerSerial(serial);
-        setFormData(prev => ({ ...prev, issuerSerialNumber: serial }));
+        setSelectedTemplateId('');
+        setAvailableTemplates([]);
+        if (e.target.checked) setFormData(prev => ({ ...prev, issuerSerialNumber: '', ca: true, templateId: null, keyUsage: [] }));
     };
 
     const handleSubmit = async (e) => {
@@ -79,6 +130,7 @@ const CertificateIssuePage = () => {
 
         const requestData = {
             ...formData,
+            templateId: formData.templateId || null,
             validFrom: new Date(formData.validFrom).toISOString(),
             validTo: new Date(formData.validTo).toISOString(),
             subjectUserId: parseInt(formData.subjectUserId),
@@ -111,6 +163,7 @@ const CertificateIssuePage = () => {
             )}
 
             <form onSubmit={handleSubmit} style={styles.form}>
+
                 {hasRole('ADMIN') && (
                     <label style={styles.checkboxLabel}>
                         <input type="checkbox" checked={isRootIssue} onChange={handleRootToggle} />
@@ -139,6 +192,7 @@ const CertificateIssuePage = () => {
                     </div>
                 </div>
 
+                {/* ISSUER SELECTOR - pojavljuje se samo ako nije ROOT */}
                 {!isRootIssue && (
                     <>
                         <div style={styles.sectionTitle}>Izaberi Izdavaoca</div>
@@ -156,22 +210,85 @@ const CertificateIssuePage = () => {
                                 ))
                             }
                         </div>
-                        <div style={styles.sectionTitle}>Konfiguracija</div>
-                        <label style={styles.checkboxLabel}>
-                            <input type="checkbox" name="ca" checked={formData.ca} onChange={handleChange} />
-                            Check Intermediate certificate
-                        </label>
+
+                        {/* KONFIGURACIJA - pojavljuje se tek kad je issuer selektovan */}
+                        {selectedIssuerSerial && (
+                            <>
+                                <div style={styles.sectionTitle}>Konfiguracija</div>
+
+                                <label style={styles.checkboxLabel}>
+                                    <input type="checkbox" name="ca" checked={formData.ca} onChange={handleChange} />
+                                    Check Intermediate certificate
+                                </label>
+
+                                {/* ŠABLONI - pojavljuju se ako postoje za selektovanog issuera */}
+                                {availableTemplates.length > 0 && (
+                                    <div>
+                                        <label style={styles.label}>Šablon (opciono):</label>
+                                        <select style={{ ...styles.input, width: '100%' }} value={selectedTemplateId} onChange={handleTemplateSelect}>
+                                            <option value="">— Bez šablona —</option>
+                                            {availableTemplates.map(t => (
+                                                <option key={t.id} value={t.id}>
+                                                    {t.name} (max {t.ttlDays} dana, CN: {t.cnRegex || 'bez validacije'})
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {selectedTemplateId && (
+                                            <div style={{ marginTop: '6px', fontSize: '12px', color: '#888' }}>
+                                                ℹ️ Key Usage i TTL su preuzeti iz šablona. CN mora odgovarati regex-u.
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <label style={styles.label}>Key Usage:</label>
+                                <div style={styles.keyUsageGrid}>
+                                    {keyUsageOptions.map(option => {
+                                        const selectedTemplate = selectedTemplateId
+                                            ? availableTemplates.find(t => t.id === parseInt(selectedTemplateId))
+                                            : null;
+                                        const isAllowed = !selectedTemplate || (selectedTemplate.keyUsage & option.value) !== 0;
+                                        return (
+                                            <label key={option.id} style={{
+                                                ...styles.checkboxLabel,
+                                                opacity: isAllowed ? 1 : 0.4,
+                                                cursor: isAllowed ? 'pointer' : 'not-allowed'
+                                            }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.keyUsage.includes(option.id)}
+                                                    onChange={() => handleKeyUsageChange(option.id)}
+                                                    disabled={!isAllowed}
+                                                />
+                                                {option.label}
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
                     </>
                 )}
-                <label style={styles.label}>Key Usage:</label>
-                <div style={styles.keyUsageGrid}>
-                    {keyUsageOptions.map(option => (
-                        <label key={option.id} style={styles.checkboxLabel}>
-                            <input type="checkbox" checked={formData.keyUsage.includes(option.id)} onChange={() => handleKeyUsageChange(option.id)} />
-                            {option.label}
-                        </label>
-                    ))}
-                </div>
+
+                {/* Za ROOT - key usage uvek vidljiv */}
+                {isRootIssue && (
+                    <>
+                        <div style={styles.sectionTitle}>Konfiguracija</div>
+                        <label style={styles.label}>Key Usage:</label>
+                        <div style={styles.keyUsageGrid}>
+                            {keyUsageOptions.map(option => (
+                                <label key={option.id} style={styles.checkboxLabel}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.keyUsage.includes(option.id)}
+                                        onChange={() => handleKeyUsageChange(option.id)}
+                                    />
+                                    {option.label}
+                                </label>
+                            ))}
+                        </div>
+                    </>
+                )}
 
                 <button type="submit" style={{ ...styles.button, opacity: loading ? 0.7 : 1 }} disabled={loading}>
                     {loading ? 'Izdavanje...' : (isRootIssue ? 'Izdaj ROOT' : 'Izdaj Sertifikat')}
