@@ -22,7 +22,7 @@ const LoginPage = () => {
     }
     try {
       const response = await fetch(
-        "http://localhost:8180/realms/sertifikat/protocol/openid-connect/token",
+        "http://localhost:8080/realms/sertifikat/protocol/openid-connect/token",
         {
           method: "POST",
           headers: {
