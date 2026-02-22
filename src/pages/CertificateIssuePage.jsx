@@ -67,16 +67,52 @@ const CertificateIssuePage = () => {
     };
 
     // Handler za KeyUsage checkbox-ove
-    const handleKeyUsageChange = (usageId) => {
-        setFormData(prev => {
-            const currentUsages = prev.keyUsage;
-            if (currentUsages.includes(usageId)) {
-                return { ...prev, keyUsage: currentUsages.filter(id => id !== usageId) };
-            } else {
-                return { ...prev, keyUsage: [...currentUsages, usageId] };
+    const handleKeyUsageChange = (optionId) => {
+    if (selectedTemplateId) {
+        const template = availableTemplates.find(t => t.id === parseInt(selectedTemplateId));
+        if (template) {
+            const option = keyUsageOptions.find(o => o.id === optionId);
+            // Proveri da li je ovaj bit dozvoljen u šablonu
+            if ((template.keyUsage & option.value) === 0) {
+                alert(`"${option.label}" nije dozvoljen ovim šablonom!`);
+                return; // Ne dozvoli čekiranje
             }
-        });
+        }
+    }
+
+    setFormData(prev => {
+        const currentUsages = prev.keyUsage;
+        if (currentUsages.includes(optionId)) {
+            return { ...prev, keyUsage: currentUsages.filter(id => id !== optionId) };
+        } else {
+            return { ...prev, keyUsage: [...currentUsages, optionId] };
+        }
+    });
     };
+
+    {keyUsageOptions.map(option => {
+    const selectedTemplate = selectedTemplateId
+        ? availableTemplates.find(t => t.id === parseInt(selectedTemplateId))
+        : null;
+
+    const isAllowed = !selectedTemplate || (selectedTemplate.keyUsage & option.value) !== 0;
+
+    return (
+        <label key={option.id} style={{
+            ...styles.checkboxLabel,
+            opacity: isAllowed ? 1 : 0.4,
+            cursor: isAllowed ? 'pointer' : 'not-allowed'
+        }}>
+            <input
+                type="checkbox"
+                checked={formData.keyUsage.includes(option.id)}
+                onChange={() => handleKeyUsageChange(option.id)}
+                disabled={!isAllowed}
+            />
+            {option.label}
+        </label>
+    );
+    })}
     
     // Handler za odabir šablona (ako koristiš)
     const handleTemplateSelect = (e) => {
