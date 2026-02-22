@@ -50,7 +50,7 @@ const CertificatePage = () => {
     }, []);
 
     const getStatus = (cert) => {
-        if (cert.isRevoked) return 'Revoked';
+        if (cert.revoked) return 'Revoked';
         if (new Date(cert.validTo) < new Date()) return 'Expired';
         return 'Valid';
     };
@@ -66,7 +66,7 @@ const CertificatePage = () => {
     const handleRightClick = (e, cert) => {
         e.preventDefault();
         setMenuPosition({ x: e.pageX, y: e.pageY });
-        if (cert.isRevoked) return
+        if (cert.revoked) return
         setSelectedCertificate(cert);
         setShowMenu(true);
     };
@@ -96,7 +96,7 @@ const CertificatePage = () => {
                 c.serialNumber === selectedCertificate.serialNumber
                     ? { 
                         ...c, 
-                        isRevoked: true,
+                        revoked: true,
                         revocationReason: revokeReason
                       }
                     : c
