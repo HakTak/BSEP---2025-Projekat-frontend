@@ -33,9 +33,9 @@ api.interceptors.response.use(
 
             // 2. Preusmeri na login
             // Koristimo window.location da osiguramo potpun reset aplikacije
-            if (window.location.pathname !== '/login') {
+           /* if (window.location.pathname !== '/login') {
                 window.location.href = '/login';
-            }
+            }*/
         }
         return Promise.reject(error);
     }
