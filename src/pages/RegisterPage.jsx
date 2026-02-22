@@ -14,14 +14,31 @@ const RegisterPage = () => {
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    
+    const [passwordFeedback, setPasswordFeedback] = useState([]);
+    const [passwordStrength, setPasswordStrength] = useState(0); // 0-5
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (name === 'password') evaluatePassword(value);
     };
+
+    const evaluatePassword = (password) => {
+    const checks = [
+        { test: password.length >= 8,           msg: "Minimalno 8 karaktera" },
+        { test: !/\s/.test(password),            msg: "Ne sme sadržati razmake" },
+        { test: /[A-Z]/.test(password),          msg: "Barem jedno veliko slovo (A-Z)" },
+        { test: /[a-z]/.test(password),          msg: "Barem jedno malo slovo (a-z)" },
+        { test: /[0-9]/.test(password),          msg: "Barem jedan broj (0-9)" },
+        { test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?/]/.test(password), 
+                                                 msg: "Barem jedan specijalni simbol" },
+    ];
+
+    const passed = checks.filter(c => c.test).length;
+    setPasswordStrength(passed);
+    setPasswordFeedback(checks);
+};
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -193,6 +210,62 @@ const RegisterPage = () => {
                             }}
                             placeholder="Unesi lozinku"
                         />
+                         {/* Estimator jačine lozinke – prikazuje se samo kad korisnik počne da kuca */}
+                            {formData.password.length > 0 && (
+                                <div style={{ marginTop: '10px' }}>
+
+                                    {/* Progress bar */}
+                                    <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                                        {[1,2,3,4,5,6].map(i => (
+                                            <div key={i} style={{
+                                                flex: 1,
+                                                height: '6px',
+                                                borderRadius: '3px',
+                                                backgroundColor: i <= passwordStrength
+                                                    ? passwordStrength <= 2 ? '#e74c3c'   // Crvena – slaba
+                                                    : passwordStrength <= 4 ? '#f39c12'   // Narandžasta – srednja
+                                                    : '#27ae60'                            // Zelena – jaka
+                                                    : '#ecf0f1'
+                                            }} />
+                                        ))}
+                                    </div>
+
+                                    {/* Tekst jačine */}
+                                    <div style={{
+                                        fontSize: '13px',
+                                        fontWeight: 'bold',
+                                        marginBottom: '8px',
+                                        color: passwordStrength <= 2 ? '#e74c3c'
+                                            : passwordStrength <= 4 ? '#f39c12'
+                                            : '#27ae60'
+                                    }}>
+                                        {passwordStrength <= 2 && 'Slaba lozinka'}
+                                        {passwordStrength > 2 && passwordStrength <= 4 && 'Srednja lozinka'}
+                                        {passwordStrength > 4 && 'Jaka lozinka ✓'}
+                                    </div>
+
+                                    {/* Lista uslova */}
+                                    <div style={{
+                                        backgroundColor: '#f8f9fa',
+                                        borderRadius: '6px',
+                                        padding: '10px',
+                                        fontSize: '13px'
+                                    }}>
+                                        {passwordFeedback.map((item, idx) => (
+                                            <div key={idx} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                marginBottom: '4px',
+                                                color: item.test ? '#27ae60' : '#e74c3c'
+                                            }}>
+                                                <span>{item.test ? '✓' : '✗'}</span>
+                                                <span>{item.msg}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                     </div>
 
                     <div style={{ marginBottom: '20px', textAlign: 'left' }}>

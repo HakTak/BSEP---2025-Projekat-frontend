@@ -12,6 +12,7 @@ import CertificateViewPage from './pages/CertificateViewPage';
 import CsrFormPage from './pages/CsrFormPage';
 import CertificateIssuePage from './pages/CertificateIssuePage';
 import CsrViewPage from './pages/CsrViewPage';
+import TemplatePage from './pages/TemplatePage';
 import { isAuthenticated, mustChangePassword, hasRole } from './utils/auth';
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
@@ -73,6 +74,13 @@ function App() {
               <AdminRegisterCAUserPage />
             </ProtectedRoute>
           } />
+
+          <Route path="/templates" element={
+            <ProtectedRoute requiredRoles={["CA_USER", "ADMIN"]}>
+              <TemplatePage />
+            </ProtectedRoute>
+          } />
+
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -42,6 +42,7 @@ const Navbar = () => {
                                 <>
                                     <Link to="/issue-certificate" style={styles.link}>Izdavanje Sertifikata</Link>
                                     <Link to="/csr" style={styles.link}>CSRs</Link>
+                                    <Link to="/templates" style={styles.link}>Sabloni</Link>
                                 </>
                             )}
 
