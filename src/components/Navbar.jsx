@@ -46,6 +46,9 @@ const Navbar = () => {
                     <Link to="/csr" style={styles.link}>
                         CSRs
                     </Link>
+                    <Link to="/templates" style={styles.link}>
+                        Sabloni
+                    </Link>
                 </div>
 
                 <div style={styles.rightSection}>

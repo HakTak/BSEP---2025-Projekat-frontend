@@ -27,18 +27,35 @@ const CertificateIssuePage = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
+    // State za učitavanje dostupnih šablona (ako koristiš)
+    const [availableTemplates, setAvailableTemplates] = useState([]);
+    const [selectedTemplateId, setSelectedTemplateId] = useState('');
+
     // KeyUsage mapiranje (BouncyCastle standardni int indeksi, prilagodi ako tvoj backend koristi druge)
     const keyUsageOptions = [
-        { id: 0, label: "Digital Signature" },
-        { id: 1, label: "Non Repudiation" },
-        { id: 2, label: "Key Encipherment" },
-        { id: 3, label: "Data Encipherment" },
-        { id: 4, label: "Key Agreement" },
-        { id: 5, label: "Key Cert Sign" },
-        { id: 6, label: "CRL Sign" },
-        { id: 7, label: "Encipher Only" },
-        { id: 8, label: "Decipher Only" }
-    ];
+    { id: 0, label: "Digital Signature",  value: 128 },
+    { id: 1, label: "Non Repudiation",    value: 64  },
+    { id: 2, label: "Key Encipherment",   value: 32  },
+    { id: 3, label: "Data Encipherment",  value: 16  },
+    { id: 4, label: "Key Agreement",      value: 8   },
+    { id: 5, label: "Key Cert Sign",      value: 4   },
+    { id: 6, label: "CRL Sign",           value: 2   },
+    { id: 7, label: "Encipher Only",      value: 1   },
+    { id: 8, label: "Decipher Only",      value: 32768 }
+];
+
+
+    useEffect(() => {
+    const serial = formData.issuerSerialNumber.trim();
+    if (!serial || isRootIssue) {
+        setAvailableTemplates([]);
+        setSelectedTemplateId('');
+        return;
+    }
+    api.get(`/templates/issuer/${serial}`)
+        .then(res => setAvailableTemplates(res.data))
+        .catch(() => setAvailableTemplates([]));
+    }, [formData.issuerSerialNumber, isRootIssue]);
 
     // Handler za tekstualna polja
     const handleChange = (e) => {
@@ -59,6 +76,31 @@ const CertificateIssuePage = () => {
                 return { ...prev, keyUsage: [...currentUsages, usageId] };
             }
         });
+    };
+    
+    // Handler za odabir šablona (ako koristiš)
+    const handleTemplateSelect = (e) => {
+    const id = e.target.value;
+    setSelectedTemplateId(id);
+
+    if (!id) {
+        // Korisnik odabrao "bez šablona" – resetuj keyUsage
+        setFormData(prev => ({ ...prev, templateId: null, keyUsage: [] }));
+        return;
+    }
+
+    const template = availableTemplates.find(t => t.id === parseInt(id));
+    if (!template) return;
+
+    // Raspakiraj keyUsage int u listu bitova
+    const checkedIds = keyUsageOptions
+        .filter(opt => (template.keyUsage & opt.value) !== 0)
+        .map(opt => opt.id);
+    setFormData(prev => ({
+        ...prev,
+        templateId: template.id,
+        keyUsage: checkedIds
+    }));
     };
 
     // Handler za "Root" toggle (samo za admine)
@@ -81,6 +123,7 @@ const CertificateIssuePage = () => {
         // Najjednostavnije je dodati ":00Z" za UTC ili poslati ISO string.
         const requestData = {
             ...formData,
+            templateId: formData.templateId || null,
             validFrom: new Date(formData.validFrom).toISOString(),
             validTo: new Date(formData.validTo).toISOString(),
             subjectUserId: parseInt(formData.subjectUserId), // Backend očekuje Long
@@ -238,6 +281,29 @@ const CertificateIssuePage = () => {
                         />
                     </div>
                 )}
+                {/* Ako nije root, možemo ponuditi šablone vezane za tog izdavaoca*/}
+                {!isRootIssue && availableTemplates.length > 0 && (
+                <div style={{ marginTop: '15px' }}>
+                    <label style={styles.label}>Šablon (opciono):</label>
+                    <select
+                        style={{ ...styles.input, width: '100%' }}
+                        value={selectedTemplateId}
+                        onChange={handleTemplateSelect}
+                    >
+                        <option value="">— Bez šablona —</option>
+                        {availableTemplates.map(t => (
+                            <option key={t.id} value={t.id}>
+                                {t.name} (max {t.ttlDays} dana, CN: {t.cnRegex || 'bez validacije'})
+                            </option>
+                        ))}
+                    </select>
+                    {selectedTemplateId && (
+                        <div style={{ marginTop: '6px', fontSize: '12px', color: '#888' }}>
+                            ℹ️ Key Usage i TTL su preuzeti iz šablona. CN mora odgovarati regex-u.
+                        </div>
+                    )}
+                </div>
+            )}
 
                 {/* --- SEKCIJA: KONFIGURACIJA SERTIFIKATA --- */}
                 <div style={styles.sectionTitle}>Konfiguracija</div>
