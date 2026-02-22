@@ -13,14 +13,21 @@ const CsrPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        api.get('/certificatse/getAllCACsr')
+        api.get('/certificates/getAllCACsr')
             .then(res => setCsrs(res.data))
             .catch(err => console.error('Error loading CSRs:', err));
     }, []);
 
-    // const handleClick = (csr) => {
-    //     navigate('/csr/detail', { state: { csr } });
-    // };
+    const handleApproveCsr = async (csrId) => {
+        try {
+            await api.post(`/certificates/approve-csr/${csrId}`);
+            const res = await api.get('/certificates/getAllCACsr');
+            setCsrs(res.data);
+        } catch (err) {
+            console.error('Error approving CSR:', err);
+            alert('Failed to approve CSR: ' + (err.response?.data || err.message));
+        }
+    };
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', minHeight: '100vh' }}>
@@ -35,7 +42,6 @@ const CsrPage = () => {
                 {csrs.map(csr => (
                     <div
                         key={csr.id}
-                        onClick={() => handleClick(csr)}
                         style={{
                             width: '180px',
                             aspectRatio: '1 / 1.414',
@@ -49,7 +55,7 @@ const CsrPage = () => {
                             justifyContent: 'space-between',
                             border: '1px solid #dcdcdc',
                             fontSize: '11px',
-                            cursor: 'pointer'
+                            cursor: 'default'
                         }}
                     >
                         <div style={{ borderBottom: '1px solid #222', paddingBottom: '4px' }}>
@@ -78,6 +84,26 @@ const CsrPage = () => {
                             }}>
                                 {csr.status}
                             </span>
+
+                            {csr.status === 'PENDING' && (
+                                <button
+                                    onClick={() => handleApproveCsr(csr.id)}
+                                    style={{
+                                        marginTop: '6px',
+                                        display: 'block',
+                                        width: '100%',
+                                        padding: '3px 0',
+                                        backgroundColor: '#1e7e34',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '10px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Approve
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}
