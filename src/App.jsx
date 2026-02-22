@@ -14,6 +14,7 @@ import CertificateViewPage from './pages/CertificateViewPage';
 import CsrFormPAge from './pages/CsrFormPage';
 import CertificateIssuePage from './pages/CertificateIssuePage';
 import CsrViewPage from './pages/CsrViewPage';
+import PasswordManagerPage from './pages/PasswordManagerPage';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/csr-form" element={<CsrFormPAge />} />
           <Route path="/issue-certificate" element={<CertificateIssuePage />} />
           <Route path="/csr" element={<CsrViewPage />} />
+          <Route path="/password-manager" element={<PasswordManagerPage />} />
         </Routes>
       </div>
     </Router>

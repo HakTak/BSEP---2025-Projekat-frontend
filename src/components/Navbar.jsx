@@ -46,6 +46,9 @@ const Navbar = () => {
                     <Link to="/csr" style={styles.link}>
                         CSRs
                     </Link>
+                    <Link to="/password-manager" style={styles.link}>
+                        Password Manager
+                    </Link>
                 </div>
 
                 <div style={styles.rightSection}>

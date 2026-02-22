@@ -36,7 +36,7 @@ export default function CsrUploadPage() {
   useEffect(() => {
     // Load mock intermediates
     loadCertificates();
-    const validIntermediates = intermediates.filter(ca => !ca.isRevoked);
+    const validIntermediates = intermediates.filter(ca => !ca.revoked);
     setIntermediates(validIntermediates);
 
     const container = scrollContainerRef.current;
@@ -186,7 +186,7 @@ export default function CsrUploadPage() {
                 }}
               >
                 {intermediates.map((ca) => {
-                  const status = ca.isRevoked
+                  const status = ca.revoked
                     ? "Revoked"
                     : new Date(ca.validTo) < new Date()
                       ? "Expired"
@@ -223,7 +223,8 @@ export default function CsrUploadPage() {
 
                       {/* BODY */}
                       <div style={{ marginTop: "4px", lineHeight: 1.2 }}>
-                        <div><strong>SN:</strong> {ca.serialNumber}</div>
+                        <div><strong>CN:</strong> {ca.commonName}</div>
+                        <div><strong>SN:</strong> <span style={{ wordBreak: 'break-all' }}>{ca.serialNumber}</span></div>
                         <div><strong>Org:</strong> {ca.organization}</div>
                         <div><strong>OU:</strong> {ca.organizationalUnit}</div>
                         <div><strong>Country:</strong> {ca.country}</div>
@@ -231,6 +232,7 @@ export default function CsrUploadPage() {
                         <div><strong>ValidFrom:</strong> {ca.validFrom?.split("T")[0]}</div>
                         <div><strong>ValidTo:</strong> {ca.validTo?.split("T")[0]}</div>
                         <div><strong>Type:</strong> {ca.type}</div>
+                        <div><strong>Public Key:</strong> <span style={{ wordBreak: 'break-all' }}>{ca.publicKey}</span></div>
                       </div>
 
                       {/* STATUS */}

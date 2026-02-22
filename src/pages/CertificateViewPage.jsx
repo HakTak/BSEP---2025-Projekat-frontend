@@ -56,11 +56,7 @@ const CertificatePage = () => {
     const handleRightClick = (e, cert) => {
         e.preventDefault();
         setMenuPosition({ x: e.pageX, y: e.pageY });
-<<<<<<< HEAD
-        if (cert.revoked) return
-=======
         if (cert.revoked) return;
->>>>>>> 05ea0d632e425acddce4198a552a84bc1e0ead5c
         setSelectedCertificate(cert);
         setShowMenu(true);
     };
@@ -147,7 +143,7 @@ const CertificatePage = () => {
                             </div>
 
                             <div style={{ marginTop: '6px', lineHeight: '1.4' }}>
-                                <div><strong>SN:</strong> {cert.serialNumber}</div>
+                                <div><strong>SN:</strong> <span style={{ wordBreak: 'break-all' }}>{cert.serialNumber}</span></div>
                                 <div><strong>Org:</strong> {cert.organization}</div>
                                 <div><strong>OU:</strong> {cert.organizationalUnit}</div>
                                 <div><strong>Country:</strong> {cert.country}</div>
@@ -155,6 +151,7 @@ const CertificatePage = () => {
                                 <div><strong>ValidFrom:</strong> {cert.validFrom?.split('T')[0]}</div>
                                 <div><strong>ValidTo:</strong> {cert.validTo?.split('T')[0]}</div>
                                 <div><strong>Type:</strong> {cert.type}</div>
+                                <div><strong>Public Key:</strong> <span style={{ wordBreak: 'break-all' }}>{cert.publicKey}</span></div>
                             </div>
 
                             <div style={{ marginTop: '6px' }}>

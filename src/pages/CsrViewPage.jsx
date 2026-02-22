@@ -64,6 +64,7 @@ const CsrPage = () => {
 
                         <div style={{ marginTop: '6px', lineHeight: '1.4' }}>
                             <div><strong>CN:</strong> {csr.commonName}</div>
+                            <div><strong>SN:</strong> <span style={{ wordBreak: 'break-all' }}>{csr.serialNumber}</span></div>
                             <div><strong>Org:</strong> {csr.organization}</div>
                             <div><strong>OU:</strong> {csr.organizationalUnit}</div>
                             <div><strong>Country:</strong> {csr.country}</div>
@@ -71,7 +72,7 @@ const CsrPage = () => {
                             <div><strong>Issuer Certificate SN:</strong> {csr.issuerSerialNumber}</div>
                             <div><strong>CSR Issued At:</strong> {csr.issuedAt?.split('T')[0]}</div>
                             <div><strong>Certificate expiry:</strong> {csr.expiresAt?.split('T')[0]}</div>
-                            <div><strong>Public Key:</strong> {csr.publicKey}</div>
+                            <div><strong>Public Key:</strong> <span style={{ wordBreak: 'break-all' }}>{csr.publicKey}</span></div>
                         </div>
 
                         <div style={{ textAlign: 'right', marginTop: '6px' }}>
