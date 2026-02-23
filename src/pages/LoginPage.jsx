@@ -9,6 +9,11 @@ const LoginPage = () => {
   const [recaptchaValue, setRecaptchaValue] = useState(null);
   const [error, setError] = useState("");
 
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotMessage, setForgotMessage] = useState({ type: '', text: '' });
+  const [forgotLoading, setForgotLoading] = useState(false);
+
   // Replace with your Google reCAPTCHA site key
   const RECAPTCHA_SITE_KEY = "6LfLGlgsAAAAACUANxKcTSZ0Sasjxm-XS4aysOV9";
 
@@ -62,6 +67,46 @@ const LoginPage = () => {
     }
   };
 
+
+  const handleForgotPassword = async (e) => {
+
+    if (!forgotEmail) {
+      setForgotMessage({ type: 'error', text: 'Unesite email adresu' });
+      return;
+    }
+
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotMessage({ type: '', text: '' });
+
+    console.log('📧 Slanje forgot-password zahteva za:', forgotEmail);
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail })
+      });
+
+      console.log('📨 Response status:', response.status);
+      const data = await response.json();
+      console.log('📨 Response body:', data);
+
+      if (!response.ok) throw new Error('Greška pri slanju emaila');
+
+      setForgotMessage({
+        type: 'success',
+        text: 'Email za oporavak je poslat! Proveri inbox.'
+      });
+      setForgotEmail('');
+    } catch (err) {
+      console.error('Zabod :', err.message);
+      setForgotMessage({ type: 'error', text: err.message });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <h2>Login</h2>
@@ -96,6 +141,73 @@ const LoginPage = () => {
         <button type="submit" style={styles.button}>
           Login
         </button>
+        {/* Forgot Password link */}
+        <p
+          onClick={() => { setShowForgotPassword(!showForgotPassword); setForgotMessage({ type: '', text: '' }); }}
+          style={{
+            textAlign: 'center',
+            marginTop: '10px',
+            color: '#007bff',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Zaboravili ste lozinku?
+        </p>
+
+        {/* Forgot Password forma – prikazuje se samo kad korisnik klikne */}
+        {showForgotPassword && (
+          <div style={{
+            marginTop: '15px',
+            padding: '15px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '6px',
+            border: '1px solid #dee2e6'
+          }}>
+            <p style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '14px' }}>
+              Unesite email adresu i poslaćemo vam link za resetovanje lozinke:
+            </p>
+            {/* IZMENA: div umesto form */}
+            <div>
+              <input
+                type="email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                placeholder="tvoj@email.com"
+                style={{ ...styles.input, width: '100%', boxSizing: 'border-box' }}
+              />
+              {/* IZMENA: onClick umesto type="submit" */}
+              <button
+                onClick={handleForgotPassword}
+                disabled={forgotLoading}
+                style={{
+                  ...styles.button,
+                  marginTop: '10px',
+                  backgroundColor: forgotLoading ? '#95a5a6' : '#27ae60',
+                  width: '100%',
+                  opacity: forgotLoading ? 0.7 : 1
+                }}
+              >
+                {forgotLoading ? 'Slanje...' : 'Pošalji link'}
+              </button>
+            </div>
+
+            {forgotMessage.text && (
+              <p style={{
+                marginTop: '10px',
+                padding: '8px',
+                borderRadius: '4px',
+                backgroundColor: forgotMessage.type === 'success' ? '#d4edda' : '#f8d7da',
+                color: forgotMessage.type === 'success' ? '#155724' : '#721c24',
+                fontSize: '13px',
+                textAlign: 'center'
+              }}>
+                {forgotMessage.text}
+              </p>
+            )}
+          </div>
+        )}
+
       </form>
     </div>
   );

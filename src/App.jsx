@@ -14,6 +14,7 @@ import CertificateIssuePage from './pages/CertificateIssuePage';
 import CsrViewPage from './pages/CsrViewPage';
 import TemplatePage from './pages/TemplatePage';
 import PasswordManagerPage from './pages/PasswordManagerPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { isAuthenticated, mustChangePassword, hasRole } from './utils/auth';
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
@@ -43,6 +44,7 @@ function App() {
           {/* Guest only */}
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+          <Route path="/reset-password" element={<GuestRoute><ResetPasswordPage /></GuestRoute>} />
 
           {/* Must change password */}
           <Route path="/change-password" element={<MustChangePasswordRoute><ChangePasswordPage /></MustChangePasswordRoute>} />
