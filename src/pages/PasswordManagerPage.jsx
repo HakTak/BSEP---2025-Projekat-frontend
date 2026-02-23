@@ -147,6 +147,7 @@ export default function PasswordManager() {
     const fetchCerts = async () => {
       try {
         const response = await api.get("/certificates/getAllEE");
+        console.log(currentUserEmail)
         setEeCerts(response.data.filter(cert => !cert.revoked && cert.email !== currentUserEmail));
       } catch (err) {
         console.error("Failed to load certificates:", err);

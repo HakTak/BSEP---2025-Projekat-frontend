@@ -55,7 +55,7 @@ function App() {
           <Route path="/my-sessions" element={<ProtectedRoute><UserSessionsPage /></ProtectedRoute>} />
           <Route path="/certificates" element={<ProtectedRoute><CertificateViewPage /></ProtectedRoute>} />
           <Route path="/csr-form" element={
-            <ProtectedRoute requiredRole={["USER"]}>
+            <ProtectedRoute requiredRoles={["USER"]}>
               <CsrFormPage />
             </ProtectedRoute>
           } />

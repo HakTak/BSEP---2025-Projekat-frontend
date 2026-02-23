@@ -1,4 +1,8 @@
+import React, { useState } from 'react'
+
 const CertificateCard = ({ cert, selected, onClick, showStatus = true, showDownload = false, onDownload }) => {
+    const [copied, setCopied] = React.useState(false);
+
     const getStatus = (cert) => {
         if (cert.revoked) return 'Revoked';
         if (new Date(cert.validTo) < new Date()) return 'Expired';
@@ -14,10 +18,37 @@ const CertificateCard = ({ cert, selected, onClick, showStatus = true, showDownl
 
     const status = getStatus(cert);
 
+    const handleCopyPublicKey = (e) => {
+        e.stopPropagation();
+        if (!cert.publicKey) return;
+        navigator.clipboard.writeText(cert.publicKey).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
+
     const field = (label, value) => (
         <div style={{ display: 'flex', gap: '3px', overflow: 'hidden' }}>
             <strong style={{ flexShrink: 0 }}>{label}:</strong>
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {value || '-'}
+            </span>
+        </div>
+    );
+
+    const copyableField = (label, value) => (
+        <div style={{ display: 'flex', gap: '3px', overflow: 'hidden', alignItems: 'center' }}>
+            <strong style={{ flexShrink: 0 }}>{label}:</strong>
+            <span
+                title={value || '-'}
+                style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    color: '#1a6fc4',
+                    textDecoration: 'underline dotted'
+                }}
+            >
                 {value || '-'}
             </span>
         </div>
@@ -28,7 +59,6 @@ const CertificateCard = ({ cert, selected, onClick, showStatus = true, showDownl
             onClick={onClick}
             style={{
                 width: '170px',
-                aspectRatio: '1 / 1.414',
                 backgroundColor: '#ffffff',
                 color: '#111111',
                 borderRadius: '6px',
@@ -38,17 +68,15 @@ const CertificateCard = ({ cert, selected, onClick, showStatus = true, showDownl
                 flexDirection: 'column',
                 border: selected ? '3px solid #1e7e34' : '1px solid #dcdcdc',
                 fontSize: '10px',
-                cursor: onClick ? 'pointer' : 'context-menu',
+                cursor: onClick ? 'pointer' : 'default',
                 boxSizing: 'border-box',
                 flexShrink: 0
             }}
         >
-            {/* HEADER */}
             <div style={{ borderBottom: '1px solid #222', paddingBottom: '4px', marginBottom: '6px' }}>
                 <div style={{ fontSize: '11px', fontWeight: 'bold', textAlign: 'center' }}>CERTIFICATE</div>
             </div>
 
-            {/* CN - GLAVNI ATRIBUT */}
             <div style={{
                 fontSize: '12px',
                 fontWeight: 'bold',
@@ -61,20 +89,40 @@ const CertificateCard = ({ cert, selected, onClick, showStatus = true, showDownl
                 {cert.commonName || cert.serialNumber}
             </div>
 
-            {/* OSTALI PODACI */}
-            <div style={{ flex: 1, lineHeight: '1.5', overflow: 'hidden' }}>
+            <div style={{ lineHeight: '1.6' }}>
                 {field('SN', cert.serialNumber)}
                 {field('Org', cert.organization)}
                 {field('OU', cert.organizationalUnit)}
                 {field('Country', cert.country)}
-                {field('issuer SN', cert.issuerSerialNumber)}
+                {field('Issuer SN', cert.issuerSerialNumber)}
                 {field('From', cert.validFrom?.split('T')[0])}
                 {field('To', cert.validTo?.split('T')[0])}
                 {field('Type', cert.type)}
-                {field('Public Key', cert.publicKey)}
+                {copyableField('PubKey', cert.publicKey)}
             </div>
 
-            {/* FOOTER */}
+            {/* COPY PUBLIC KEY DUGME */}
+            {cert.publicKey && (
+                <button
+                    onClick={handleCopyPublicKey}
+                    style={{
+                        marginTop: '6px',
+                        display: 'block',
+                        width: '100%',
+                        padding: '3px 0',
+                        backgroundColor: copied ? '#1e7e34' : '#6c757d',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '9px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                    }}
+                >
+                    {copied ? '✓ Kopirano!' : 'Copy Public Key'}
+                </button>
+            )}
+
             <div style={{ marginTop: '6px' }}>
                 {showStatus && (
                     <div style={{ textAlign: 'right', marginBottom: showDownload ? '4px' : 0 }}>
