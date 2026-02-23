@@ -15,6 +15,7 @@ import CsrFormPAge from './pages/CsrFormPage';
 import CertificateIssuePage from './pages/CertificateIssuePage';
 import CsrViewPage from './pages/CsrViewPage';
 import TemplatePage from './pages/TemplatePage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/issue-certificate" element={<CertificateIssuePage />} />
           <Route path="/csr" element={<CsrViewPage />} />
           <Route path="/templates" element={<TemplatePage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Routes>
       </div>
     </Router>

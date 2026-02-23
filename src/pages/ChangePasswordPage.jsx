@@ -8,19 +8,31 @@ const ChangePasswordPage = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
-    // Dodajemo state da znamo da li je provera završena pre prikaza
     const [isChecking, setIsChecking] = useState(true);
+    const [passwordFeedback, setPasswordFeedback] = useState([]);
+    const [passwordStrength, setPasswordStrength] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!mustChangePassword()) {
-            // Ako ne mora da menja lozinku, vraćamo ga na početnu
             navigate("/");
         } else {
-            // Ako mora, dozvoljavamo prikaz forme
             setIsChecking(false);
         }
     }, [navigate]);
+
+    const evaluatePassword = (pwd) => {
+        const checks = [
+            { test: pwd.length >= 8,                                        msg: "Minimalno 8 karaktera" },
+            { test: !/\s/.test(pwd),                                        msg: "Ne sme sadržati razmake" },
+            { test: /[A-Z]/.test(pwd),                                      msg: "Barem jedno veliko slovo (A-Z)" },
+            { test: /[a-z]/.test(pwd),                                      msg: "Barem jedno malo slovo (a-z)" },
+            { test: /[0-9]/.test(pwd),                                      msg: "Barem jedan broj (0-9)" },
+            { test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?/]/.test(pwd),     msg: "Barem jedan specijalni simbol" },
+        ];
+        setPasswordStrength(checks.filter(c => c.test).length);
+        setPasswordFeedback(checks);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,6 +41,11 @@ const ChangePasswordPage = () => {
 
         if (password !== confirmPassword) {
             setError("Lozinke se ne poklapaju");
+            return;
+        }
+
+        if (passwordStrength < 6) {
+            setError("Lozinka ne ispunjava sve uslove");
             return;
         }
 
@@ -53,7 +70,6 @@ const ChangePasswordPage = () => {
         }
     };
 
-    // Dok proveravamo uslov, ne prikazujemo ništa (ili loader)
     if (isChecking) {
         return null;
     }
@@ -70,9 +86,52 @@ const ChangePasswordPage = () => {
                         type="password"
                         style={{ width: "100%", padding: "8px", marginTop: "5px" }}
                         value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        onChange={e => { setPassword(e.target.value); evaluatePassword(e.target.value); }}
                         required
                     />
+
+                    {/* Estimator – prikazuje se čim korisnik počne da kuca */}
+                    {password.length > 0 && (
+                        <div style={{ marginTop: "10px" }}>
+                            {/* Progress bar */}
+                            <div style={{ display: "flex", gap: "4px", marginBottom: "6px" }}>
+                                {[1,2,3,4,5,6].map(i => (
+                                    <div key={i} style={{
+                                        flex: 1, height: "6px", borderRadius: "3px",
+                                        backgroundColor: i <= passwordStrength
+                                            ? passwordStrength <= 2 ? "#e74c3c"
+                                            : passwordStrength <= 4 ? "#f39c12"
+                                            : "#27ae60"
+                                            : "#ecf0f1"
+                                    }} />
+                                ))}
+                            </div>
+
+                            {/* Tekst jačine */}
+                            <div style={{
+                                fontSize: "13px", fontWeight: "bold", marginBottom: "8px",
+                                color: passwordStrength <= 2 ? "#e74c3c" : passwordStrength <= 4 ? "#f39c12" : "#27ae60"
+                            }}>
+                                {passwordStrength <= 2 && "Slaba lozinka"}
+                                {passwordStrength > 2 && passwordStrength <= 4 && "Srednja lozinka"}
+                                {passwordStrength === 6 && "Jaka lozinka ✓"}
+                            </div>
+
+                            {/* Lista uslova */}
+                            <div style={{ backgroundColor: "#f8f9fa", borderRadius: "6px", padding: "10px", fontSize: "13px" }}>
+                                {passwordFeedback.map((item, idx) => (
+                                    <div key={idx} style={{
+                                        display: "flex", alignItems: "center", gap: "8px",
+                                        marginBottom: "4px",
+                                        color: item.test ? "#27ae60" : "#e74c3c"
+                                    }}>
+                                        <span>{item.test ? "✓" : "✗"}</span>
+                                        <span>{item.msg}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ marginBottom: "15px" }}>
