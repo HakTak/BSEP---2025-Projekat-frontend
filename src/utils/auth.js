@@ -65,3 +65,9 @@ export const mustChangePassword = () => {
     // Proveravamo da li je true (boolean) ili "true" (string)
     return payload.mustChangePassword === true || payload.mustChangePassword === "true";
 };
+
+export const getUserEmail = () => {
+    const payload = getJwtPayload();
+    if (!payload) return null;
+    return payload.email || null;
+}

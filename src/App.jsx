@@ -13,6 +13,7 @@ import CsrFormPage from './pages/CsrFormPage';
 import CertificateIssuePage from './pages/CertificateIssuePage';
 import CsrViewPage from './pages/CsrViewPage';
 import TemplatePage from './pages/TemplatePage';
+import PasswordManagerPage from './pages/PasswordManagerPage';
 import { isAuthenticated, mustChangePassword, hasRole } from './utils/auth';
 
 const ProtectedRoute = ({ children, requiredRole = null }) => {
@@ -54,7 +55,7 @@ function App() {
           <Route path="/my-sessions" element={<ProtectedRoute><UserSessionsPage /></ProtectedRoute>} />
           <Route path="/certificates" element={<ProtectedRoute><CertificateViewPage /></ProtectedRoute>} />
           <Route path="/csr-form" element={
-            <ProtectedRoute requiredRole={["USER"]}>
+            <ProtectedRoute requiredRoles={["USER"]}>
               <CsrFormPage />
             </ProtectedRoute>
           } />
@@ -78,6 +79,12 @@ function App() {
           <Route path="/templates" element={
             <ProtectedRoute requiredRoles={["CA_USER", "ADMIN"]}>
               <TemplatePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/password-manager" element={
+            <ProtectedRoute requiredRoles={["USER"]}>
+              <PasswordManagerPage />
             </ProtectedRoute>
           } />
 

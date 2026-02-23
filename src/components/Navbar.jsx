@@ -33,7 +33,10 @@ const Navbar = () => {
                             <Link to="/certificates" style={styles.link}>Sertifikati</Link>
 
                             {isUser && (
-                                <Link to="/csr-form" style={styles.link}>CSR Form</Link>
+                                <>
+                                    <Link to="/csr-form" style={styles.link}>CSR Form</Link>
+                                    <Link to="/password-manager" style={styles.link}>Password Manager</Link>
+                                </>
                             )}
 
                             <Link to="/my-sessions" style={styles.link}>Moje Sesije</Link>
