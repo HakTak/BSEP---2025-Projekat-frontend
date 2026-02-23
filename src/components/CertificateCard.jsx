@@ -71,6 +71,7 @@ const CertificateCard = ({ cert, selected, onClick, showStatus = true, showDownl
                 {field('From', cert.validFrom?.split('T')[0])}
                 {field('To', cert.validTo?.split('T')[0])}
                 {field('Type', cert.type)}
+                {field('Public Key', cert.publicKey)}
             </div>
 
             {/* FOOTER */}
