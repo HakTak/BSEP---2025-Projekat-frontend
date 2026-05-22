@@ -2,6 +2,10 @@
 
 > Academic project for *Security in Electronic Commerce Systems*, 2025
 
+<p align="left">
+  <a href="https://github.com/HakTak/sentinel-pki-password-vault-backend"><img src="https://img.shields.io/badge/Repository-Backend-4A5D4E?style=for-the-badge&logo=github" alt="Backend Repo"/></a>
+</p>
+
 ---
 
 ## 📖 Quick Start
