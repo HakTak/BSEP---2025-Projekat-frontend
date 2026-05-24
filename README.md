@@ -302,19 +302,19 @@ export const authService = {
 
 ### Login Flow
 1. User enters email and password
-2. Rešava reCAPTCHA
-3. Backend vraća JWT token
-4. Token se čuva u `localStorage` (HttpOnly cookie je preferovano)
-5. Svaki API zahtev uključuje token u `Authorization` header-u
+2. Solves reCAPTCHA
+3. Backend returns JWT token
+4. Token is stored in `localStorage` (HttpOnly cookie is preferred)
+5. Every API request includes the token in the `Authorization` header
 
-### Token Upravljanje
+### Token Management
 ```javascript
 // app-wide interceptor
 api.interceptors.response.use(
   response => response,
   async error => {
     if (error.response.status === 401) {
-      // Token je istekao
+      // Token has expired
       const newToken = await refreshToken();
       error.config.headers.Authorization = `Bearer ${newToken}`;
       return api(error.config);
@@ -324,47 +324,47 @@ api.interceptors.response.use(
 );
 ```
 
-## Bezbednost na Frontendu
+## Frontend Security
 
-### 1. XSS Zaštita
+### 1. XSS Protection
 ```javascript
-// ❌ Izbjegavati direktno postavljanje HTML-a
+// ❌ Avoid directly setting HTML
 <div dangerouslySetInnerHTML={{ __html: userInput }} />
 
-// ✅ Koristiti React-ov default escaping
+// ✅ Use React's default escaping
 <div>{userInput}</div>
 ```
 
-### 2. CSRF Zaštita
-- Backend treba da validira `Origin` i `Referer` header-e
-- Koristiti SameSite cookie opciju
+### 2. CSRF Protection
+- Backend should validate `Origin` and `Referer` headers
+- Use SameSite cookie option
 
-### 3. Web Crypto API za Enkripciju
+### 3. Web Crypto API for Encryption
 ```javascript
-// Enkripcija lozinke pre slanja na backend
+// Encrypt password before sending to backend
 const publicKey = await loadPublicKey();
 const encryptedPassword = await cryptoService.encrypt(publicKey, password);
 await api.post('/api/secrets', { encryptedPassword });
 ```
 
-### 4. Validacija Ulaza
+### 4. Input Validation
 ```javascript
-// Validacija email-a
+// Email validation
 const validateEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-// Validacija lozinke (minimum 8 karaktera, 1 broj, 1 specijalni znak)
+// Password validation (minimum 8 characters, 1 number, 1 special character)
 const validatePassword = (password) => {
   return /^(?=.*\d)(?=.*[!@#$%^&*])(?=.{8,})/.test(password);
 };
 ```
 
-## Integracija sa Backend API-jem
+## Backend API Integration
 
 ### Certificate Issuance Flow
 ```javascript
-// 1. Korisnik uploaduje CSR
+// 1. User uploads CSR
 const uploadCSR = async (csr, caId) => {
   const formData = new FormData();
   formData.append('csr', csr);
@@ -372,8 +372,8 @@ const uploadCSR = async (csr, caId) => {
   return api.post('/api/certificates/generate', formData);
 };
 
-// 2. Backend generiše sertifikat
-// 3. Frontend preuzima sertifikat
+// 2. Backend generates certificate
+// 3. Frontend downloads certificate
 const downloadCertificate = async (certificateId) => {
   const response = await api.get(
     `/api/certificates/${certificateId}/download`,
@@ -390,41 +390,41 @@ const downloadCertificate = async (certificateId) => {
 
 ## Password Manager - Web Crypto API Flow
 
-### Čuvanje lozinke
-1. Korisnik unosi lozinku u formu
-2. Frontend učitava javni ključ korisnika
-3. Lozinka se enkriptuje sa RSA-OAEP
-4. Enkriptovana lozinka se šalje backend-u
-5. Backend je čuva u bazi
+### Storing Password
+1. User enters password in the form
+2. Frontend loads user's public key
+3. Password is encrypted with RSA-OAEP
+4. Encrypted password is sent to backend
+5. Backend stores it in the database
 
-### Čitanje lozinke
-1. Korisnik zahteva pristup lozinci
-2. Backend vraća enkriptovanu lozinku
-3. Frontend učitava privatni ključ korisnika sa njegovim uređaja
-4. Frontend dekriptuje lozinku pomoću Web Crypto API-ja
-5. Dekriptovana lozinka se prikazuje korisniku
+### Reading Password
+1. User requests access to the password
+2. Backend returns encrypted password
+3. Frontend loads user's private key from their device
+4. Frontend decrypts password using Web Crypto API
+5. Decrypted password is displayed to the user
 
-### Deljenje lozinke
-1. Alice želi da podeli lozinku sa Bob-om
-2. Frontend dekriptuje lozinku sa Alice-inim privatnim ključem
-3. Frontend učitava Bob-ov javni ključ
-4. Frontend enkriptuje lozinku sa Bob-ovim javnim ključem
-5. Oba verzije (Alice i Bob) se čuvaju na backend-u
+### Sharing Password
+1. Alice wants to share password with Bob
+2. Frontend decrypts password with Alice's private key
+3. Frontend loads Bob's public key
+4. Frontend encrypts password with Bob's public key
+5. Both versions (Alice and Bob) are stored on backend
 
 ## Development
 
 ### Debugging
 ```bash
-# Otvorite DevTools (F12)
-# Koristite Network tab za praćenje API poziva
-# Koristite Console za console.log() ispise
+# Open DevTools (F12)
+# Use Network tab to track API calls
+# Use Console for console.log() output
 ```
 
 ### HMR (Hot Module Replacement)
-Vite automatski osvežava stranicu pri izmeni koda bez gubitka stanja.
+Vite automatically refreshes the page when code is modified without losing state.
 
 ### Mock API Calls
-Za testiranje bez backend-a, koristite mock servise:
+For testing without backend, use mock services:
 ```javascript
 // services/mockApi.js
 export const mockAuthService = {
@@ -435,17 +435,17 @@ export const mockAuthService = {
 
 ## Deployment
 
-### Build za Production
+### Build for Production
 ```bash
 npm run build
 ```
 
-Ovo kreira optimizovani `dist/` folder sa:
-- Minifikovani JavaScript/CSS
-- Optimizovane slike
-- Source maps za debugging
+This creates an optimized `dist/` folder with:
+- Minified JavaScript/CSS
+- Optimized images
+- Source maps for debugging
 
-### Deploy sa Nginx/Apache
+### Deploy with Nginx/Apache
 ```nginx
 # nginx.conf
 server {
@@ -487,53 +487,49 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ## Troubleshooting
 
-| Problem | Rešenje |
-|---------|---------|
-| CORS greška | Proverite CORS konfiguraciju u backend `SecurityConfig.java` |
-| "Cannot find module" | Pokrenite `npm install` i `npm run dev` ponovo |
-| API je nedostupna | Proverite da backend radi na `https://localhost:8080` |
-| Web Crypto API greška | Proverite da je aplikacija na HTTPS (obavezno za Web Crypto API) |
-| Token je istekao | Implementirajte refresh token logiku sa interceptor-ima |
-| Build greške | Pokrenite `npm run lint -- --fix` za auto-popravku |
+| Problem | Solution |
+|---------|----------|
+| CORS error | Check CORS configuration in backend `SecurityConfig.java` |
+| "Cannot find module" | Run `npm install` and `npm run dev` again |
+| API is unavailable | Verify that backend is running on `https://localhost:8080` |
+| Web Crypto API error | Verify that application is on HTTPS (required for Web Crypto API) |
+| Token has expired | Implement refresh token logic with interceptors |
+| Build errors | Run `npm run lint -- --fix` for auto-correction |
 
-## Browser Kompatibilnost
+## Browser Compatibility
 
-| Svojstvo | Chrome | Firefox | Safari | Edge |
-|----------|--------|---------|--------|------|
+| Feature | Chrome | Firefox | Safari | Edge |
+|---------|--------|---------|--------|------|
 | Web Crypto API | ✅ 37+ | ✅ 34+ | ✅ 11+ | ✅ 79+ |
 | Fetch API | ✅ 40+ | ✅ 39+ | ✅ 10.1+ | ✅ 14+ |
 | LocalStorage | ✅ | ✅ | ✅ | ✅ |
 | reCAPTCHA | ✅ | ✅ | ✅ | ✅ |
 
-## Dodatne Funkcionalnosti
+## Additional Features
 
-- 🎨 Teme (Light/Dark mode)
-- 🔔 Notifikacije u realnom vremenu (WebSocket)
-- 📊 Export podataka (CSV, PDF)
-- 🌍 Multi-jezički interfejs (i18n)
+- 🎨 Themes (Light/Dark mode)
+- 🔔 Real-time notifications (WebSocket)
+- 📊 Data export (CSV, PDF)
+- 🌍 Multi-language interface (i18n)
 - ♿ Accessibility compliance (WCAG 2.1)
 
-## Sve o Web Crypto API-ju
+## All About Web Crypto API
 
-Web Crypto API se koristi za:
-1. **Enkripciju** - RSA-OAEP za javne ključeve
-2. **Dekripciju** - Korišćenje privatnih ključeva
-3. **Digitalno potpisivanje** - RSASSA-PKCS1-v1_5
-4. **Generisanje ključeva** - RSA-PSS, ECDSA
+Web Crypto API is used for:
+1. **Encryption** - RSA-OAEP for public keys
+2. **Decryption** - Using private keys
+3. **Digital Signing** - RSASSA-PKCS1-v1_5
+4. **Key Generation** - RSA-PSS, ECDSA
 
-**Važno**: Privatni ključ se NIKADA ne šalje na backend. Sve operacije sa privatnim ključem se odvijaju na frontendu!
+**Important**: Private key is NEVER sent to backend. All operations with private key occur on the frontend!
 
-## Dokumentacija
+## Documentation
 
 - React: https://react.dev
 - Vite: https://vitejs.dev
 - Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API
 - Axios: https://axios-http.com
 
-## Licenca
+## License
 
-Akademski projekat - Bezbednost u sistemima elektronskog poslovanja, 2025
-
-## Kontakt
-
-Za pitanja ili probleme, obratite se predmetnom nastavniku.
+Academic project - Security in Electronic Commerce Systems, 2025
